@@ -24,12 +24,12 @@ const NoteApp = () => {
     if (notesData) {
       setNotes(notesData);
     }
-    console.log('fetched')
+    console.log("---Fetched Data");
   }, []);
 
-  //change data when notes gets updated --- runs on every change 
+  //change data when notes gets updated --- runs on every change
   useEffect(() => {
-    console.log('set')
+    console.log("+Updated data");
     localStorage.setItem("notes", JSON.stringify(notes));
   }, [notes]);
 
@@ -37,11 +37,7 @@ const NoteApp = () => {
     <div>
       <h1>Notes</h1>
       {notes.map(note => (
-        <div key={note.title}>
-          <h3>{note.title}</h3>
-          <p>{note.body}</p>
-          <button onClick={() => removeNote(note.title)}>x</button>
-        </div>
+        <Note key={note.title} note={note} removeNote={removeNote}/>
       ))}
       <p>Add note</p>
       <form onSubmit={addNote}>
@@ -53,6 +49,21 @@ const NoteApp = () => {
   );
 };
 
+const Note = ({note,removeNote}) => {
+    useEffect(()=>{
+        console.log('+setting up effect!')
+        return () => {
+            console.log('-cleaning up effect')
+        }
+    },[])
+  return (
+    <div>
+      <h3>{note.title}</h3>
+      <p>{note.body}</p>
+      <button onClick={() => removeNote(note.title)}>x</button>
+    </div>
+  );
+};
 // const App = (props) => {
 //     const [count, setCount] = useState(props.count)
 //     const [text, setText] = useState('')
