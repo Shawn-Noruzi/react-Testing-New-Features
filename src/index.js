@@ -1,33 +1,59 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import ReactDOM from "react-dom";
 import * as serviceWorker from "./serviceWorker";
 
+
+//useState for simple functions. 
+//useReducer for more complex functions + clean up code for resusability and managability. 
+const notesReducer = (state, action ) => {
+    switch (action.type){
+        case 'POPULATE_NOTES':
+            return action.notes
+        case 'ADD_NOTE':
+            return [
+                ...state,
+                {title: action.title,
+                body: action.body}
+            ]
+        case 'REMOVE_NOTE':
+            return state.filter((note)=> note.title !== action.title)
+        default: 
+            return state
+    }
+}
+
 const NoteApp = () => {
-  const [notes, setNotes] = useState([]);
+
+//returns an array with 2 things : state, dispatch function
+//dispatch will run the reducer + manipulate the state as described in reducer.
+const [notes, dispatch] = useReducer(notesReducer, [])
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
 
   const addNote = e => {
     e.preventDefault();
-    setNotes([...notes, { title, body }]);
+    // setNotes([...notes, { title, body }]);
+    dispatch({type: 'ADD_NOTE', title, body })
     setTitle("");
     setBody("");
   };
 
   const removeNote = title => {
-    setNotes(notes.filter(note => note.title !== title));
+    // setNotes(notes.filter(note => note.title !== title));
+    dispatch({type: 'REMOVE_NOTE', title })
   };
 
   //fetch + parse data  --- only runs once because of the empty array provided in the 2nd arg for useEffect
   useEffect(() => {
-    const notesData = JSON.parse(localStorage.getItem("notes"));
-    if (notesData) {
-      setNotes(notesData);
+    const notes = JSON.parse(localStorage.getItem("notes"));
+    if (notes) {
+        dispatch({type: 'POPULATE_NOTES', notes })
+    //   setNotes(notesData);
     }
     console.log("---Fetched Data");
   }, []);
 
-  //change data when notes gets updated --- runs on every change
+  //change data when notes gets updated + save to dataStore --- runs on every change
   useEffect(() => {
     console.log("+Updated data");
     localStorage.setItem("notes", JSON.stringify(notes));
